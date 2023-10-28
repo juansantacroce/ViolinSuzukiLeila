@@ -56,7 +56,7 @@ namespace ViolinSuzukiLeila
             parametros.Add(new Parametro("@dni", txtDni.Text));
             parametros.Add(new Parametro("@calle", txtCalle.Text));
             parametros.Add(new Parametro("@altura", txtAltura.Text));
-            parametros.Add(new Parametro("@id_ciudad", cboCiudad.SelectedValue));
+            parametros.Add(new Parametro("@id_ciudad", cboCiudad.SelectedIndex + 1)/*Le sumo 1 por diferencia de indices en SSMS*/);
             parametros.Add(new Parametro("@observaciones", txtObservaciones.Text));
 
 
@@ -65,13 +65,15 @@ namespace ViolinSuzukiLeila
                 //AGREGAR PARAMETROS PARTICULARES DE ALUMNO
                 parametros.Add(new Parametro("@colegio", txtColegio.Text));
                 parametros.Add(new Parametro("@fecha_nac", dtpFechaNac.Value));
-                helper.Consultar("SP_CARGAR_ALUMNO", parametros);
+                string resultado = helper.Insertar("SP_CARGAR_ALUMNO", parametros);
+                MessageBox.Show(resultado, "Atencion!", MessageBoxButtons.OK);
             }
             else
             {
                 //AGREGAR PARAMETROS PARTICULARES DE RESPONSABLE
-                /*parametros.Add(new Parametro("@id_tipo_responsable", cboTipoResponsable.SelectedValue));
-                helper.Consultar("SP_CARGAR_RESPONSABLE", parametros);*/
+                parametros.Add(new Parametro("@id_tipo_responsable", cboTipoResponsable.SelectedValue));
+                string resultado = helper.Insertar("SP_CARGAR_RESPONSABLE", parametros);
+                MessageBox.Show(resultado, "Atencion!", MessageBoxButtons.OK);
             }
         }
 
@@ -83,10 +85,9 @@ namespace ViolinSuzukiLeila
             comboBox.ValueMember = dt.Columns[0].ColumnName;
             comboBox.DropDownStyle = ComboBoxStyle.DropDownList;
         }
-        public void CargarComboCiudades()
+        public void CargarComboCiudades(int indice)
         {
-            int idProvincia = cboProvincia.SelectedIndex;
-            Parametro parametro = new Parametro("@id_provincia", cboProvincia.SelectedValue);
+            Parametro parametro = new Parametro("@id_provincia", indice);
             DataTable dt = helper.Consultar("SP_CARGAR_COMBO_CIUDAD", parametro);
             cboCiudad.DataSource = dt;
             cboCiudad.DisplayMember = dt.Columns[1].ColumnName;
@@ -102,11 +103,14 @@ namespace ViolinSuzukiLeila
 
         private void cboProvincia_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //VALIDACION KIKURA????
-            if (cboProvincia.SelectedValue == 1)
-            {
-                CargarComboCiudades();
-            }
+            int idProvincia = cboProvincia.SelectedIndex;
+
+            CargarComboCiudades(idProvincia + 1);/*Le sumo 1 por diferencia de indices en SSMS*/
+        }
+
+        private void txtDni_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

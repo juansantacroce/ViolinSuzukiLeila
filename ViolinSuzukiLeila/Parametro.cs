@@ -13,8 +13,8 @@ namespace ViolinSuzukiLeila
 
         public Parametro(string Nombre, object Valor)
         {
-			Nombre = nombre;
-			Valor = valor;
+			nombre = Nombre;
+			valor = Valor;
         }
 
         public object pValor
