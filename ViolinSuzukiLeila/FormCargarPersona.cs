@@ -14,7 +14,7 @@ namespace ViolinSuzukiLeila
     public partial class FormCargarPersona : Form
     {
         Helper helper;
-        //
+
         public FormCargarPersona()
         {
             InitializeComponent();
@@ -67,6 +67,7 @@ namespace ViolinSuzukiLeila
                 parametros.Add(new Parametro("@fecha_nac", dtpFechaNac.Value));
                 string resultado = helper.Insertar("SP_CARGAR_ALUMNO", parametros);
                 MessageBox.Show(resultado, "Atencion!", MessageBoxButtons.OK);
+                MessageBox.Show(resultado, "Atencion!",MessageBoxButtons.OK);
             }
             else
             {
@@ -104,7 +105,6 @@ namespace ViolinSuzukiLeila
         private void cboProvincia_SelectedIndexChanged(object sender, EventArgs e)
         {
             int idProvincia = cboProvincia.SelectedIndex;
-
             CargarComboCiudades(idProvincia + 1);/*Le sumo 1 por diferencia de indices en SSMS*/
         }
 
