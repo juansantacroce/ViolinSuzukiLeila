@@ -17,7 +17,7 @@ namespace ViolinSuzukiLeila
 
         public Helper()
         {
-            cnnString = @"Data Source=JUANSANTACROCE\SQLEXPRESS;Initial Catalog=VIOLIN_SUZUKI_LEILA;Integrated Security=True";
+            cnnString = @"Data Source=NTB62275\SQLEXPRESS;Initial Catalog=VIOLIN_SUZUKI_LEILA;Integrated Security=True";
             cnn = new SqlConnection(cnnString);
             cmd = new SqlCommand();
         }
@@ -56,6 +56,21 @@ namespace ViolinSuzukiLeila
             return dt;
         }
 
+        public int? ConsultarID(string nombreSP)
+        {
+            cnn.Open();
+            SqlCommand cmd = new SqlCommand();
+            cmd.Connection = cnn;
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.CommandText = nombreSP;
+            cmd.Parameters.Clear();
+            DataTable dt = new DataTable();
+            dt.Load(cmd.ExecuteReader());
+            int? result = Convert.ToInt32(dt.Rows[0][0]);
+            cnn.Close();
+            return result;
+        }
+
         public DataTable Consultar(string nombreSP, Parametro param)
         {
             cnn.Open();
@@ -72,7 +87,7 @@ namespace ViolinSuzukiLeila
             cnn.Close();
             return dt;
         }
-        public string Insertar(string nombreSP, List<Parametro> lstParametros)
+        public bool Insertar(string nombreSP, List<Parametro> lstParametros)
         {
             cnn.Open();
             SqlCommand cmd = new SqlCommand();
@@ -90,10 +105,10 @@ namespace ViolinSuzukiLeila
             dt.Load(cmd.ExecuteReader());
             if (cmd.ExecuteNonQuery() > 0)
             {
-                return "Se cargo correctamente";
+                return true;
             }
             cnn.Close();
-            return "No se pudo cargar, intente nuevamente o llame al servicio tecnico";
+            return false;
         }
     }
 }

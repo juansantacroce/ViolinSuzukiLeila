@@ -49,7 +49,20 @@ namespace ViolinSuzukiLeila
 
         private void btnGrabar_Click(object sender, EventArgs e)
         {
-            //AGREGAR PARAMETROS GENERALES DE PERSONA
+
+            if (rdbAlumno.Checked)
+            {
+                InsertarDatos(true);
+            }
+            else
+            {
+                InsertarDatos(false);
+            }
+            
+        }
+
+        private void InsertarDatos(bool esAlumno)
+        {
             List<Parametro> parametros = new List<Parametro>();
             parametros.Add(new Parametro("@nombre", txtNombre.Text));
             parametros.Add(new Parametro("@apellido", txtApellido.Text));
@@ -58,24 +71,57 @@ namespace ViolinSuzukiLeila
             parametros.Add(new Parametro("@altura", txtAltura.Text));
             parametros.Add(new Parametro("@id_ciudad", cboCiudad.SelectedIndex + 1)/*Le sumo 1 por diferencia de indices en SSMS*/);
             parametros.Add(new Parametro("@observaciones", txtObservaciones.Text));
+            string storedProcedure = esAlumno ? "SP_CARGAR_ALUMNO" : "SP_CARGAR_RESPONSABLE";
+            //Guarda en un string el sp correspondiente
 
-
-            if (rdbAlumno.Checked == true)
+            if (esAlumno)
             {
-                //AGREGAR PARAMETROS PARTICULARES DE ALUMNO
                 parametros.Add(new Parametro("@colegio", txtColegio.Text));
                 parametros.Add(new Parametro("@fecha_nac", dtpFechaNac.Value));
-                string resultado = helper.Insertar("SP_CARGAR_ALUMNO", parametros);
-                MessageBox.Show(resultado, "Atencion!", MessageBoxButtons.OK);
-                MessageBox.Show(resultado, "Atencion!",MessageBoxButtons.OK);
             }
             else
             {
-                //AGREGAR PARAMETROS PARTICULARES DE RESPONSABLE
                 parametros.Add(new Parametro("@id_tipo_responsable", cboTipoResponsable.SelectedValue));
-                string resultado = helper.Insertar("SP_CARGAR_RESPONSABLE", parametros);
-                MessageBox.Show(resultado, "Atencion!", MessageBoxButtons.OK);
             }
+
+            bool resultado = helper.Insertar(storedProcedure, parametros);
+
+            if (resultado)
+            {
+                List<Parametro> paramContacto = new List<Parametro>();
+                string id_alumno = "SP_OBTENER_ID_ALUMNO";
+                string id_responsable = "SP_OBTENER_ID_RESPONSABLE";
+                int? idAlumno = !esAlumno ? ObtenerUltimoID(id_alumno) : null;
+                int? idResponsable = esAlumno ? null : ObtenerUltimoID(id_responsable);
+
+                paramContacto.Add(new Parametro("id_alumno", idAlumno));
+                paramContacto.Add(new Parametro("@id_responsable", idResponsable));
+
+                if (!string.IsNullOrEmpty(txtTelefono.Text))
+                {
+                    paramContacto.Add(new Parametro("@id_tipo_contacto", 1));
+                    paramContacto.Add(new Parametro("@contaco", txtTelefono.Text));
+                }
+                else if (!string.IsNullOrWhiteSpace(txtEmail.Text))
+                {
+                    paramContacto.Add(new Parametro("@id_tipo_contacto", 2));
+                    paramContacto.Add(new Parametro("@contaco", txtEmail.Text));
+                }
+                else
+                {
+                    paramContacto.Add(new Parametro("@id_tipo_contacto", 1));
+                    paramContacto.Add(new Parametro("@contaco", null));
+                }
+
+                
+            }
+
+        }
+
+        private int? ObtenerUltimoID(string sp)
+        {
+            int? ultimoId = helper.ConsultarID(sp);
+            return ultimoId;
         }
 
         public void CargarCombo(string nombreTabla, System.Windows.Forms.ComboBox comboBox)
@@ -108,9 +154,7 @@ namespace ViolinSuzukiLeila
             CargarComboCiudades(idProvincia + 1);/*Le sumo 1 por diferencia de indices en SSMS*/
         }
 
-        private void txtDni_TextChanged(object sender, EventArgs e)
-        {
 
-        }
+
     }
 }
